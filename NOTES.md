@@ -361,4 +361,56 @@ const createPost = api.post.create.useMutation({
 
 
 
-asdfasf
+数据库没有用户字段，统一使用 clerk api 获取用户
+
+```tsx
+const users = await clerkClient.users.getUserList({
+  userId: posts.map((post) => post.authorId),
+  limit: 100
+})
+```
+
+
+
+我们修改了 procedure 的返回值后，可以通过 src/trpc/shared.ts 提供的TypeScript 辅助方法 RouterOutputs 来获取新的返回值类型
+
+```tsx
+type PostWithUser = RouterOutputs["post"]["getAll"][number] // [number] 表示数组
+```
+
+
+
+procedure 内部报错：`throw new TRPCError`
+
+```tsx
+if (!author) {
+  throw new TRPCError({
+    code: 'INTERNAL_SERVER_ERROR',
+    message: 'Author for post not found'
+  })
+}
+```
+
+
+
+dayjs 计算相对时间
+
+```tsx
+import dayjs from 'dayjs'
+import relativeTime from "dayjs/plugin/relativeTime"
+
+dayjs.extend(relativeTime)
+
+dayjs(post.createdAt).fromNow()
+```
+
+
+
+css 文件中使用 tailwind css ：`@apply` 关键字
+
+```css
+body {
+  @apply bg-black text-slate-100
+}
+```
+
