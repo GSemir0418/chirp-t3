@@ -13,10 +13,10 @@ const createQueryClient = () => new QueryClient();
 let clientQueryClientSingleton: QueryClient | undefined = undefined;
 const getQueryClient = () => {
   if (typeof window === "undefined") {
-    // Server: always make a new query client
+    // 服务端：永远创建新的 QueryClient
     return createQueryClient();
   }
-  // Browser: use singleton pattern to keep the same query client
+  // 浏览器：使用单例模式保证使用相同的 QueryClient
   return (clientQueryClientSingleton ??= createQueryClient());
 };
 
