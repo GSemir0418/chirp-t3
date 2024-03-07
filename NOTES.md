@@ -466,3 +466,31 @@ export const privateProcedure = t.procedure.use(enforceUserIsAuthed)
 
 基于这个 procedure 定义路由函数，该路由函数则自带鉴权功能
 
+
+
+提示信息
+
+React-hot-toast
+
+https://react-hot-toast.com/
+
+```tsx
+const { mutate, isLoading } = api.post.create.useMutation({
+  onSuccess: () => {
+    router.refresh();
+    setInput("");
+  },
+  onError: (err) => {
+    const errorMessage = err.data?.zodError?.fieldErrors.content
+    if (errorMessage && errorMessage[0]) {
+    	toast.error(errorMessage[0])
+    } else {
+      toast.error('[CREATE_POST_ERROR]')
+      console.error('[CREATE_POST_ERROR]', err)
+    }
+  }
+})
+```
+
+
+

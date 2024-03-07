@@ -4,6 +4,7 @@ import { useUser } from "@clerk/nextjs"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import toast from "react-hot-toast";
 import { api } from "~/trpc/react"
 
 export function CreatePostWizard() {
@@ -11,17 +12,23 @@ export function CreatePostWizard() {
   const router = useRouter();
   const [input, setInput] = useState("")
 
-  
-  const {mutate, isLoading} = api.post.create.useMutation({
+
+  const { mutate, isLoading } = api.post.create.useMutation({
     onSuccess: () => {
       router.refresh();
       setInput("");
     },
     onError: (err) => {
-      console.error('[CREATE_POST_ERROR]', err)
+      const errorMessage = err.data?.zodError?.fieldErrors.content
+      if (errorMessage && errorMessage[0]) {
+        toast.error(errorMessage[0])
+      } else {
+        toast.error('[CREATE_POST_ERROR]')
+        console.error('[CREATE_POST_ERROR]', err)
+      }
     }
   })
-  
+
   if (!isLoaded) return <div>Loading user...</div>
   if (!user) return null
 
@@ -40,11 +47,19 @@ export function CreatePostWizard() {
         className="bg-transparent grow outline-none"
         value={input}
         onChange={(e) => setInput(e.target.value)}
+        onKeyDown={e => {
+          if (e.key === 'Enter') {
+            e.preventDefault()
+            if (input !== '') {
+              mutate({ content: input })
+            }
+          }
+        }}
       />
       <button
-        onClick={() => { mutate({ content: input }) }}
+        disabled={isLoading}
       >
-        {isLoading ? "Submitting..." : "POST"}
+        {isLoading ? "Submitting..." : ""}
       </button>
     </div>
   )
