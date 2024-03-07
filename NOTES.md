@@ -414,3 +414,55 @@ body {
 }
 ```
 
+
+
+tailwind loading spinner
+
+https://flowbite.com/docs/components/spinner/
+
+
+
+Trpc procedure 鉴权
+
+createTRPCContext 方法中，在参数的 req 中取出用户数据，作为 trpc context 的 currentUser 属性返回
+
+```tsx
+// src/server/api/trpc.ts
+export const createTRPCContext = async (opts: {req?: NextRequest, headers: Headers}) => {
+  const { req } = opts
+  const user = req ? getAuth(req).userId : null
+
+  return {
+    db,
+    currentUser: user,
+    ...opts,
+  };
+};
+```
+
+新建一个鉴权中间件，检查 ctx 中是否有 currentUser，如果有则 next，如果没有则报错 TRPCError
+
+```tsx
+const enforceUserIsAuthed = t.middleware(async ({ ctx, next }) => {
+  if (!ctx.currentUser) {
+    throw new TRPCError({
+      code: 'UNAUTHORIZED'
+    })
+  }
+
+  return next({
+    ctx: {
+      currentUser: ctx.currentUser
+    }
+  })
+})
+```
+
+导出一个使用了鉴权中间件的 privateProcedure
+
+```tsx
+export const privateProcedure = t.procedure.use(enforceUserIsAuthed)
+```
+
+基于这个 procedure 定义路由函数，该路由函数则自带鉴权功能
+

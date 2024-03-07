@@ -8,6 +8,7 @@ import { RouterOutputs } from "~/trpc/shared";
 import dayjs from 'dayjs'
 import relativeTime from "dayjs/plugin/relativeTime"
 import Image from "next/image";
+import { CreatePostWizard } from "./_components/create-post-wizard";
 
 dayjs.extend(relativeTime)
 
@@ -59,28 +60,7 @@ async function CrudShowcase() {
   );
 }
 
-async function CreatePostWizard() {
-  const user = await currentUser()
 
-  if (!user) return null
-
-  return (
-    <div className="flex gap-4 w-full">
-      <Image
-        className="rounded-full"
-        src={user.imageUrl}
-        alt="Profile image"
-        width={64}
-        height={64}
-      />
-      <input
-        type="text"
-        placeholder="Type some emojis!"
-        className="bg-transparent grow outline-none"
-      />
-    </div>
-  )
-}
 
 type PostWithUser = RouterOutputs["post"]["getAll"][number]
 
